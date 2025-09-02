@@ -1,9 +1,18 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.AppDisneyList" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Eliminar el fondo blanco de la barra de estado -->
+        <item name="android:windowTranslucentStatus">true</item>
 
-    <style name="Theme.AppDisneyList" parent="Base.Theme.AppDisneyList" />
+        <!-- Eliminar el fondo blanco de la barra de navegación -->
+        <item name="android:windowTranslucentNavigation">true</item>
+
+        <!-- Hacer que el contenido se extienda hasta el área del notch -->
+        <item name="android:windowFullscreen">true</item>
+
+        <!-- Ajustar el color de la barra de navegación -->
+        <item name="android:navigationBarColor">@android:color/transparent</item> <!-- Establecer la barra de navegación como transparente -->
+
+        <!-- Cambiar el color de la barra de estado -->
+        <item name="android:statusBarColor">@android:color/transparent</item> <!-- Barra de estado transparente -->
+    </style>
 </resources>

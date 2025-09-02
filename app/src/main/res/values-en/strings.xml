@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AppDisneyList</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ConnectionTimeFailure">The connection time is over, please try again</string>
+    <string name="BtnRetryConnection">Retry Connection</string>
+    <string name="FilmsTV">This Character appears in the following films:</string>
+    <string name="NoFilms">The character doesn\'t appear in any film</string>
+    <string name="ToastConecctionFailure">There is no network available</string>
+</resources>

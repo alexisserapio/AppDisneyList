@@ -1,60 +1,123 @@
 package com.alexisserapio.appdisneylist.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.alexisserapio.appdisneylist.R
+import com.alexisserapio.appdisneylist.data.remote.DisneyAPI
+import com.alexisserapio.appdisneylist.data.remote.model.CharacterResponse
+import com.alexisserapio.appdisneylist.databinding.FragmentCharacterListBinding
+import com.alexisserapio.appdisneylist.util.Constants
+import com.alexisserapio.appdisneylist.view.adapters.CharactersAdapter
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CharacterListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CharacterListFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentCharacterListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_character_list, container, false)
+        _binding =
+            FragmentCharacterListBinding.inflate(
+                inflater,
+                container,
+                false
+            )
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CharacterListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CharacterListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(Constants.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val charactersAPI = retrofit.create(DisneyAPI::class.java)
+
+        fun llamadaAPI(){
+            // Llamada a la API con el parámetro adecuado
+            val call: Call<CharacterResponse> = charactersAPI.getCharacters(7438)
+            binding.pbLoading.visibility = View.VISIBLE
+            binding.buttonRetry.visibility = View.INVISIBLE
+            call.enqueue(object : Callback<CharacterResponse> {
+
+                override fun onResponse(call: Call<CharacterResponse>, response: Response<CharacterResponse>) {
+                    binding.pbLoading.visibility = View.INVISIBLE
+                    if (response.isSuccessful) {
+                        val characterResponse = response.body()
+                        val characters = characterResponse?.data
+                        Log.d("APPSLOG", characters.toString())
+
+                        binding.apply {
+                            RVCharacters.layoutManager = LinearLayoutManager(requireActivity())
+                            RVCharacters.adapter = characters?.let {
+                                CharactersAdapter(characters) { character2 ->
+                                    Log.d("APPSLOG2", "Character ID: $character2")
+                                    character2._id?.let{ id->
+                                        requireActivity().supportFragmentManager.beginTransaction()
+                                            .replace(R.id.FragmentContainer, CharacterDetailsFragment.newInstance(character2._id.toString()))
+                                            .addToBackStack(null)
+                                            .commit()
+                                            Log.d("APPSLOG3", "Correct CharacterID: ${character2._id.toString()}")
+
+
+                                    }
+                                }
+                            }
+                        }
+
+
+                    } else {
+                        Toast.makeText(
+                            requireActivity(),
+                            "No jalo",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
-            }
+
+                override fun onFailure(call: Call<CharacterResponse>, t: Throwable) {
+                    binding.pbLoading.visibility = View.INVISIBLE
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.ConnectionTimeFailure),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.e("APPSLOG", "Error: ${t.message}")
+
+                    val boton_reintentar = requireView().findViewById<Button>(R.id.button_retry)
+                    boton_reintentar.visibility = View.VISIBLE
+
+                    boton_reintentar.setOnClickListener{
+                        boton_reintentar.visibility = View.GONE
+                        llamadaAPI()
+                    }
+                }
+
+            })
+
+        }
+
+        llamadaAPI()
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

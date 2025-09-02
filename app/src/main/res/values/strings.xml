@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">AppDisneyList</string>
+    <string name="app_name">Disney Character List</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hola Blank fragment</string>
+    <string name="ConnectionTimeFailure">Se agotó el tiempo de espera para la conexión, intenta de nuevo</string>
+    <string name="BtnRetryConnection">Reintentar Conexión</string>
+    <string name="FilmsTV">Filmes en los que aparece este personaje:</string>
+    <string name="NoFilms">El personaje no aparece en ningun filme</string>
 </resources>
